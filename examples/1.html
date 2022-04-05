@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <div id="app">
+    <h3>{{name}}</h3>
+    <wzy :school="school" @change-school="changeSchool" />
+    <my-comp />
+  </div>
+
+  <script>
+
+    // base64 转换原理
+    function toBase64(str) {
+      /**
+       * 1. 将传入的字符串转化成二进制
+       * 2. 一个字符 8 位，补齐 str.length * 8 位
+       * 3. 每三个字符，也就是 24 位为一组
+       * 4. 将得到的二进制字符串按 6 位分割
+       */
+
+      let AtoZ = new Array(26).fill(65).map((v, i) => String.fromCodePoint(v + i));
+      let atoz = new Array(26).fill(97).map((v, i) => String.fromCodePoint(v + i));
+
+      let base64Str = AtoZ.join('') + atoz.join('') + '0123456789+/';
+
+      let strToArr = str.split('');
+      let binaryStr = strToArr.reduce((prev, next) => {
+        //将字符转换为 ascii 码点, 再将码点转化为二进制，最后用 0 补齐8位
+        return prev + next.charCodeAt().toString(2).padStart(8, '0');
+      }, '');
+
+      // 8 和 6 最小公倍数是 24，这也是为什么要 24 位为一组
+      // 模24，可能会得到 8 或 16，然后补 0 并添加 = 等于号
+      let rease = binaryStr.length % 24;
+      if (rease === 8) {
+        binaryStr += '0000'
+      } else if(rease === 16) {
+        binaryStr += '00'
+      }
+
+      let result = ''
+      for (let i = 0; i < binaryStr.length; i += 6) {
+        let sliceStr = binaryStr.slice(i, i+6);
+        let ascii = parseInt(sliceStr, 2);
+        result += base64Str[ascii]
+      }
+
+      // rease 是 8 上面补了 4个零，result 就需要增加 两个 = 等于号
+      if (rease === 8) {
+        result += '=='
+      } else if(rease === 16) {
+        result += '='
+      }
+
+      return result;
+
+    }
+
+    console.log(toBase64('wixi+'));
+
+  </script>
+  <script src="../dist/vue.js"></script>
+  <script>
+    debugger
+
+    Vue.component('my-comp', {
+      template: '<p>今天天气不太好</p>'
+    })
+
+    const wzy = {
+      template: `<div>
+        <button @click="handleClick">点我一下试试</button>
+        <p>学校是：{{ school }}</p>
+      </div>`,
+      props: {
+        school: {
+          type: String,
+          default: '',
+        }
+      },
+      methods: {
+        handleClick() {
+          this.$emit('change-school', '浙江大学')
+        }
+      }
+    }
+    const app = new Vue({
+      components: { wzy },
+      el: '#app',
+      data: {
+        name: 'wzy',
+        school: '中国人民大学',
+      },
+      methods: {
+        changeSchool(school) {
+          this.school = school;
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
