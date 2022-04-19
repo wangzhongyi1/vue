@@ -24,10 +24,12 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+  // 判断当前浏览器是否支持原生 Proxy
   const hasProxy =
     typeof Proxy !== 'undefined' &&
     Proxy.toString().match(/native code/)
 
+  // 如果支持原生 Proxy，则设置一些默认的事件修饰符 如：@click.stop.prevent="handleClick"，然后用 Proxy 代理用户自定义的修饰符，不能覆盖默认的
   if (hasProxy) {
     const isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact')
     config.keyCodes = new Proxy(config.keyCodes, {
@@ -63,6 +65,7 @@ if (process.env.NODE_ENV !== 'production') {
     }
   }
 
+  // 当用户在 vm 实例身上取值不存在时，就 warn 提示用户
   initProxy = function initProxy (vm) {
     if (hasProxy) {
       // determine which proxy handler to use

@@ -89,6 +89,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // updated in a parent's updated hook.
   }
 
+  //? 调用 this.$forceUpdate() 可以进行强制更新(强制当前组件重新渲染)
   Vue.prototype.$forceUpdate = function () {
     const vm: Component = this
     if (vm._watcher) {
@@ -96,29 +97,31 @@ export function lifecycleMixin (Vue: Class<Component>) {
     }
   }
 
+  //? 调用 vm.$destroy() 将某个组件实例进行销毁
   Vue.prototype.$destroy = function () {
     const vm: Component = this
     if (vm._isBeingDestroyed) {
       return
     }
     callHook(vm, 'beforeDestroy')
-    vm._isBeingDestroyed = true
+    vm._isBeingDestroyed = true //? 标识当前实例正在被销毁
     // remove self from parent
     const parent = vm.$parent
     if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
-      remove(parent.$children, vm)
+      remove(parent.$children, vm) //? 从父组件中将自己移除
     }
     // teardown watchers
-    if (vm._watcher) {
+    if (vm._watcher) { //? 解绑渲染watcher
       vm._watcher.teardown()
     }
+
     let i = vm._watchers.length
-    while (i--) {
+    while (i--) { //? 解绑当前实例上的所有 watcher,包括渲染watcher，计算属性创建的watcher(computed:{})，watch选项里创建的watcher(watch:{})
       vm._watchers[i].teardown()
     }
     // remove reference from data ob
     // frozen object may not have observer.
-    if (vm._data.__ob__) {
+    if (vm._data.__ob__) { //? 猜测 vmCount-- 时会调用 Object.freeze() 冻结当前实例的data，就不会再响应式了
       vm._data.__ob__.vmCount--
     }
     // call the last hook...

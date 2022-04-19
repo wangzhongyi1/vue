@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <div id="app">
+        <ul>
+            <li v-for="item in list" :key="item.id">{{ item.name }}</li>
+        </ul>
+
+        <p>fullName: {{ fullName }}</p>
+
+        <button @click="handleChangeLastName">改变lastName</button>
+
+        <p>num: {{ num }}</p>
+    </div>
+    
+    <script src="../dist/vue.js"></script>
+    <script>
+        
+        var app = new Vue({
+            el: '#app',
+            data: {
+                list: [
+                    { id: 1, name: '江西' },
+                    { id: 2, name: '浙江' },
+                    { id: 3, name: '湖北' },
+                    { id: 4, name: '四川' },
+                ],
+                firstName: '王',
+                lastName: '钟毅',
+                num: 0,
+                info: {
+                    school: '玉山二中',
+                    job: '前端工程师',
+                }
+            },
+
+            computed: {
+                fullName () {
+                    return this.firstName + this.lastName
+                }
+            },
+
+            methods: {
+                handleChangeLastName() {
+                    this.lastName = '天贵'
+                }
+            },
+
+            watch: {
+                lastName(newVal, oldVal) {
+                    this.num += 2
+                },
+                info: {
+                    handler: function (newVal, oldVal) {
+                        console.log('info:', newVal);
+                    },
+                    deep: true,
+                    sync: true,
+                    immediate: true,
+                }
+            }
+            
+        })
+
+        setTimeout(() => {
+            app.info.job = '前端开发'
+        }, 2000);
+
+    </script>
+
+</body>
+</html>

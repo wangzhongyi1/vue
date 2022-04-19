@@ -142,11 +142,11 @@ export function remove (arr: Array<any>, item: any): Array<any> | void {
   }
 }
 
+const hasOwnProperty = Object.prototype.hasOwnProperty
 /**
  * Check whether the object has the property.
  *? 判断是否对象自身的属性 Object.prototype.hasOwnProperty 
  */
-const hasOwnProperty = Object.prototype.hasOwnProperty
 export function hasOwn (obj: Object | Array<*>, key: string): boolean {
   return hasOwnProperty.call(obj, key)
 }
@@ -207,7 +207,7 @@ export function bind (fn: Function, ctx: Object): Function {
 
 /**
  * Convert an Array-like object to a real Array.
- *? 将类数组转化为数组
+ *? 将类数组转化为数组，可以传入第二个参数 start 表示从第几项开始转化
  */
 export function toArray (list: any, start?: number): Array<any> {
   start = start || 0

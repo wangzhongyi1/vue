@@ -88,15 +88,20 @@ function initInternalComponent (vm: Component, options: InternalComponentOptions
   }
 }
 
+/**
+ * 
+ * @param {*} Ctor是一个构造函数 可能是 Vue 也可能是 VueComponent
+ * @returns options 返回自己和所有祖先类中的options合并后的新options
+ */
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
-  if (Ctor.super) {
-    const superOptions = resolveConstructorOptions(Ctor.super)
-    const cachedSuperOptions = Ctor.superOptions
-    if (superOptions !== cachedSuperOptions) {
+  if (Ctor.super) { // super 是父类，说明当前是子类
+    const superOptions = resolveConstructorOptions(Ctor.super) //拿到所有父类的 options
+    const cachedSuperOptions = Ctor.superOptions //上一次记录的 父类options
+    if (superOptions !== cachedSuperOptions) { //如果不一样说明，父类的options更改了
       // super option changed,
       // need to resolve new options.
-      Ctor.superOptions = superOptions
+      Ctor.superOptions = superOptions //重新记录父类的 options
       // check if there are any late-modified/attached options (#4976)
       const modifiedOptions = resolveModifiedOptions(Ctor)
       // update base extend options

@@ -20,7 +20,7 @@ export default class Dep {
   }
 
   addSub (sub: Watcher) {
-    this.subs.push(sub)
+    this.subs.push(sub) // 收集 watcher
   }
 
   removeSub (sub: Watcher) {
@@ -37,7 +37,7 @@ export default class Dep {
     // stabilize the subscriber list first
     const subs = this.subs.slice()
     for (let i = 0, l = subs.length; i < l; i++) {
-      subs[i].update()
+      subs[i].update() // 通知 watcher 进行更新
     }
   }
 }
@@ -49,10 +49,10 @@ Dep.target = null
 const targetStack = []
 
 export function pushTarget (_target: Watcher) {
-  if (Dep.target) targetStack.push(Dep.target)
-  Dep.target = _target
+  if (Dep.target) targetStack.push(Dep.target) // 将最新的 watcher 存起来
+  Dep.target = _target // Dep.target 永远指向最新的一个watcher，没有则是 undefined
 }
 
 export function popTarget () {
-  Dep.target = targetStack.pop()
+  Dep.target = targetStack.pop() // Dep.target 指向队尾被删除的 那个watcher
 }

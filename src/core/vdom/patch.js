@@ -31,6 +31,11 @@ export const emptyNode = new VNode('', {}, [])
 
 const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
 
+/**
+ * @param {vnode} a 
+ * @param {vnode} b 
+ * @returns 主要通过两个 vnode 的 key 和 tagName 来判断是否是同一个 vnode
+ */
 function sameVnode (a, b) {
   return (
     a.key === b.key && (
