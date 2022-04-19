@@ -2,6 +2,9 @@
 
 import { parseFilters } from './parser/filter-parser'
 
+/**
+ * @param {string} msg console.error 控制台输出错误
+ */
 export function baseWarn (msg: string) {
   console.error(`[Vue compiler]: ${msg}`)
 }
@@ -15,14 +18,33 @@ export function pluckModuleFunction<F: Function> (
     : []
 }
 
+/**
+ * @param {ASTElement} 真实dom元素 对应的 AST语法树
+ * @param {string} name 需要添加 prop 的 key
+ * @param {string} value 需要添加 prop 的 value
+ */
 export function addProp (el: ASTElement, name: string, value: string) {
   (el.props || (el.props = [])).push({ name, value })
 }
 
+/**
+ * @param {ASTElement} el 真实dom元素 对应的 AST语法树
+ * @param {string} name 需要添加 attr 的 key
+ * @param {string} value 需要添加 attr 的 value
+ */
 export function addAttr (el: ASTElement, name: string, value: string) {
   (el.attrs || (el.attrs = [])).push({ name, value })
 }
 
+/**
+ *? 添加一个指令
+ * @param {ASTElement} el el 真实dom元素 对应的 AST语法树
+ * @param {*} name 指令名称不带 v- 前缀
+ * @param {*} rawName 指令名称 带 v- 前缀
+ * @param {*} value 指令值 v-model="123" 就是 123
+ * @param {*} arg 暂时不知
+ * @param {*} modifiers 暂时不知
+ */
 export function addDirective (
   el: ASTElement,
   name: string,

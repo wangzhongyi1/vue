@@ -311,6 +311,11 @@ export function deactivateChildComponent (vm: Component, direct?: boolean) {
   }
 }
 
+/**
+ * 调用对应的钩子函数
+ * @param {Component} vm vue实例
+ * @param {string} hook 钩子函数名称
+ */
 export function callHook (vm: Component, hook: string) {
   const handlers = vm.$options[hook]
   if (handlers) {

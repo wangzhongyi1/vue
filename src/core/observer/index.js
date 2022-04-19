@@ -128,6 +128,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
 
 /**
  * Define a reactive property on an Object.
+ * @param shallow 浅的 如果 true 说明就不用递归观测
  */
 export function defineReactive (
   obj: Object,
@@ -138,13 +139,13 @@ export function defineReactive (
 ) {
   const dep = new Dep()
 
-  const property = Object.getOwnPropertyDescriptor(obj, key)
-  if (property && property.configurable === false) {
+  const property = Object.getOwnPropertyDescriptor(obj, key) //获取属性描述符
+  if (property && property.configurable === false) { //如果是不可配置的属性，就 return
     return
   }
 
   // cater for pre-defined getter/setters
-  const getter = property && property.get
+  const getter = property && property.get //属性描述符里有 get函数，就使用
   const setter = property && property.set
 
   let childOb = !shallow && observe(val)

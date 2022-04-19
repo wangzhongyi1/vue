@@ -35,6 +35,12 @@ const sharedPropertyDefinition = {
   set: noop
 }
 
+/**
+ * 给到 target对象 取值做一层代理，改为到 target[sourceKey] 上取值，赋值也是同理
+ * @param {Object} target 数据源对象
+ * @param {string} sourceKey 代理对象
+ * @param {string} key 取值的键名
+ */
 export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter () {
     return this[sourceKey][key]
@@ -45,6 +51,10 @@ export function proxy (target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
+/**
+ * 初始化状态：props->methods->data->computed->watch
+ * @param {*} vm vue实例
+ */
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
@@ -107,6 +117,10 @@ function initProps (vm: Component, propsOptions: Object) {
   observerState.shouldConvert = true
 }
 
+/**
+ * 
+ * @param {*} vm 通过构造函数创建的 vm实例
+ */
 function initData (vm: Component) {
   let data = vm.$options.data
   data = vm._data = typeof data === 'function'
@@ -200,18 +214,24 @@ function initComputed (vm: Component, computed: Object) {
   }
 }
 
+/**
+ * 
+ * @param {*} target 构造函数 Vue | VueComponent
+ * @param {*} key 给target身上定义的计算属性的key
+ * @param {*} userDef 用户传过来的计算属性，包含两种写法：可能是个函数，也可能是个有get set 的对象
+ */
 export function defineComputed (
   target: any,
   key: string,
   userDef: Object | Function
 ) {
-  const shouldCache = !isServerRendering()
-  if (typeof userDef === 'function') {
+  const shouldCache = !isServerRendering() // 非服务端渲染，就缓存起来
+  if (typeof userDef === 'function') { // 计算属性写成简单的函数形式
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
       : userDef
     sharedPropertyDefinition.set = noop
-  } else {
+  } else { // 计算属性写成对象形式，也就是有 get set
     sharedPropertyDefinition.get = userDef.get
       ? shouldCache && userDef.cache !== false
         ? createComputedGetter(key)
@@ -230,7 +250,7 @@ export function defineComputed (
       )
     }
   }
-  Object.defineProperty(target, key, sharedPropertyDefinition)
+  Object.defineProperty(target, key, sharedPropertyDefinition) // 使用Object.defineProperty把这个计算属性定义在构造函数身上
 }
 
 function createComputedGetter (key) {
@@ -248,6 +268,11 @@ function createComputedGetter (key) {
   }
 }
 
+/**
+ * 
+ * @param {*} vm 实例对象
+ * @param {*} methods 传入配置中的 methods选项
+ */
 function initMethods (vm: Component, methods: Object) {
   const props = vm.$options.props
   for (const key in methods) {
@@ -272,7 +297,7 @@ function initMethods (vm: Component, methods: Object) {
         )
       }
     }
-    vm[key] = methods[key] == null ? noop : bind(methods[key], vm)
+    vm[key] = methods[key] == null ? noop : bind(methods[key], vm) //? 这里使用 bind 是为了在调用的时候传入 vm实例
   }
 }
 

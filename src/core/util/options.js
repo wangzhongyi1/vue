@@ -131,6 +131,7 @@ strats.data = function (
 
 /**
  * Hooks and props are merged as arrays.
+ *? 生命周期钩子函数的合并策略，存放在一个数组中
  */
 function mergeHook (
   parentVal: ?Array<Function>,
@@ -155,6 +156,7 @@ LIFECYCLE_HOOKS.forEach(hook => {
  * When a vm is present (instance creation), we need to do
  * a three-way merge between constructor options, instance
  * options and parent options.
+ *? component,directive,filter 采用相同的合并策略，用继承的方式，可以访问和使用到父类中定义的这三个东西，也能防止同名覆盖，自己有就用自己的，没有就顺着原型链找父类的
  */
 function mergeAssets (
   parentVal: ?Object,
@@ -213,6 +215,7 @@ strats.watch = function (
 
 /**
  * Other object hashes.
+ *? props,methods,inject,computed采用相同的合并策略,相同key直接覆盖
  */
 strats.props =
 strats.methods =
@@ -245,6 +248,7 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
 
 /**
  * Validate component names
+ *? 检查组件的名字是否合适
  */
 function checkComponents (options: Object) {
   for (const key in options.components) {
@@ -324,6 +328,7 @@ function normalizeInject (options: Object, vm: ?Component) {
 
 /**
  * Normalize raw function directives into object format.
+ *? 指令的合并，如果 Vue.directive('demo', function(el,binding){}) 这种第二个参数是函数的时候，默认触发 bind和update 两钩子
  */
 function normalizeDirectives (options: Object) {
   const dirs = options.directives
@@ -378,11 +383,11 @@ export function mergeOptions (
   }
   const options = {}
   let key
-  for (key in parent) {
+  for (key in parent) { //? 循环 parent 中的属性，进行合并
     mergeField(key)
   }
   for (key in child) {
-    if (!hasOwn(parent, key)) {
+    if (!hasOwn(parent, key)) { //? child 自己独有的属性，直接合并
       mergeField(key)
     }
   }

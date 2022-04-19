@@ -89,14 +89,14 @@ function initInternalComponent (vm: Component, options: InternalComponentOptions
 }
 
 export function resolveConstructorOptions (Ctor: Class<Component>) {
-  let options = Ctor.options
-  if (Ctor.super) {
-    const superOptions = resolveConstructorOptions(Ctor.super)
-    const cachedSuperOptions = Ctor.superOptions
-    if (superOptions !== cachedSuperOptions) {
+  let options = Ctor.options // 拿到构造函数身上的 options
+  if (Ctor.super) { // 如果是子类，就有 super指向父类，顶级的 Vue 是没有super的，只有子组件身上才有
+    const superOptions = resolveConstructorOptions(Ctor.super) // 拿到父类的 构造函数options属性
+    const cachedSuperOptions = Ctor.superOptions // 存的上一次的父类的 构造函数options属性
+    if (superOptions !== cachedSuperOptions) { // 不一致，需要更新
       // super option changed,
       // need to resolve new options.
-      Ctor.superOptions = superOptions
+      Ctor.superOptions = superOptions // 重新记录父类的 构造函数options属性，供下次比较
       // check if there are any late-modified/attached options (#4976)
       const modifiedOptions = resolveModifiedOptions(Ctor)
       // update base extend options

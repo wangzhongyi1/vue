@@ -14,11 +14,14 @@ export function initExtend (Vue: GlobalAPI) {
   let cid = 1
 
   /**
-   * Class inheritance
+   * 调用 Vue.extend({}) 可以创建一个子类继承自 Vue
+   * 子组件也可以调用到这个方法，就可以创建一个孙子组件
+   * @param {Object} extendOptions 调用 Vue.extend({}) 传入的配置对象
+   * @returns 
    */
   Vue.extend = function (extendOptions: Object): Function {
     extendOptions = extendOptions || {}
-    const Super = this
+    const Super = this // 父类
     const SuperId = Super.cid
     const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
     if (cachedCtors[SuperId]) {
@@ -69,8 +72,8 @@ export function initExtend (Vue: GlobalAPI) {
       Sub[type] = Super[type]
     })
     // enable recursive self-lookup
-    if (name) {
-      Sub.options.components[name] = Sub
+    if (name) { //? 将自己保存到 自己的options.components 里面，形成的循环引用
+      Sub.options.components[name] = Sub //? 一个组件就是一个子类，后续会 new这个子类，走 _init 初始化流程
     }
 
     // keep a reference to the super options at extension time.

@@ -10,6 +10,13 @@ let warn
 // so we used some reserved tokens during compile.
 export const RANGE_TOKEN = '__r'
 
+/**
+ *? 初始化 v-model 指令
+ * @param {ASTElement} el 
+ * @param {ASTDirective} dir 
+ * @param {Function} _warn 
+ * @returns 
+ */
 export default function model (
   el: ASTElement,
   dir: ASTDirective,
