@@ -23,7 +23,7 @@ const startTagClose = /^\s*(\/?)>/
 const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`)
 const doctype = /^<!DOCTYPE [^>]+>/i
 const comment = /^<!--/
-const conditionalComment = /^<!\[/
+const conditionalComment = /^<!\[/ //? 匹配 <![]> 这种情况
 
 let IS_REGEX_CAPTURING_BROKEN = false
 'x'.replace(/x(.)?/g, function (m, g) {
@@ -67,11 +67,11 @@ export function parseHTML (html, options) {
       let textEnd = html.indexOf('<')
       if (textEnd === 0) {
         // Comment:
-        if (comment.test(html)) {
+        if (comment.test(html)) { //? 匹配 html注释 <!-- 你好 -->
           const commentEnd = html.indexOf('-->')
 
           if (commentEnd >= 0) {
-            if (options.shouldKeepComment) {
+            if (options.shouldKeepComment) { //? 是否需要保持注释
               options.comment(html.substring(4, commentEnd))
             }
             advance(commentEnd + 3)

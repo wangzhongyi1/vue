@@ -11,9 +11,15 @@
 <body>
 
   <div id="app">
+    <div>
+      <span>num: {{ num }} total: {{ total }}</span>
+      <button @click="handleAddNum">num加1</button>
+    </div>
+
     <h3>{{name}}</h3>
-    <wzy :school="school" @change-school="changeSchool" />
-    <my-comp />
+    <wzy :school="school" @change-school="changeSchool"></wzy>
+    <my-comp></my-comp>
+    
   </div>
 
   <script>
@@ -43,13 +49,13 @@
       let rease = binaryStr.length % 24;
       if (rease === 8) {
         binaryStr += '0000'
-      } else if(rease === 16) {
+      } else if (rease === 16) {
         binaryStr += '00'
       }
 
       let result = ''
       for (let i = 0; i < binaryStr.length; i += 6) {
-        let sliceStr = binaryStr.slice(i, i+6);
+        let sliceStr = binaryStr.slice(i, i + 6);
         let ascii = parseInt(sliceStr, 2);
         result += base64Str[ascii]
       }
@@ -57,7 +63,7 @@
       // rease 是 8 上面补了 4个零，result 就需要增加 两个 = 等于号
       if (rease === 8) {
         result += '=='
-      } else if(rease === 16) {
+      } else if (rease === 16) {
         result += '='
       }
 
@@ -73,7 +79,33 @@
     debugger
 
     Vue.component('my-comp', {
-      template: '<p>今天天气不太好</p>'
+      template: '<p>今天天气是：{{ weatherChina }}</p>',
+      data() {
+        return {
+          weather: 'sun'
+        }
+      },
+      computed: {
+        weatherChina() {
+          switch(this.weather) {
+            case 'sun':
+              return '大太阳'
+            case 'rain':
+              return '下雨天'
+          }
+        }
+      }
+    })
+
+    Vue.mixin({
+      beforeCreate() {
+        console.log('i am from mixin beforeCreate hook');
+      },
+      data () {
+        return {
+          work: 'engineer'
+        }
+      }
     })
 
     const wzy = {
@@ -99,11 +131,28 @@
       data: {
         name: 'wzy',
         school: '中国人民大学',
+        num: 0,
+      },
+      computed: {
+        total() {
+          return this.num + 5
+        }
+      },
+      watch: {
+        total: {
+          handler: function (newVal, oldVal) {
+            console.log('监听到的值为:', newVal, oldVal);
+          },
+          immediate: true,
+        }
       },
       methods: {
         changeSchool(school) {
           this.school = school;
-        }
+        },
+        handleAddNum() {
+          this.num += 1
+        },
       }
     });
   </script>
