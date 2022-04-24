@@ -26,7 +26,7 @@ export function initLifecycle (vm: Component) {
   // locate first non-abstract parent
   let parent = options.parent
   if (parent && !options.abstract) {
-    while (parent.$options.abstract && parent.$parent) {
+    while (parent.$options.abstract && parent.$parent) { //? 找到第一个非抽象父组件
       parent = parent.$parent
     }
     parent.$children.push(vm)
@@ -92,8 +92,8 @@ export function lifecycleMixin (Vue: Class<Component>) {
   //? 调用 this.$forceUpdate() 可以进行强制更新(强制当前组件重新渲染)
   Vue.prototype.$forceUpdate = function () {
     const vm: Component = this
-    if (vm._watcher) {
-      vm._watcher.update()
+    if (vm._watcher) { // 拿出当前vm实例的渲染watcher
+      vm._watcher.update() // 渲染watcher的update方法，调用queueWatcher，进行排队等待更新
     }
   }
 
@@ -196,7 +196,7 @@ export function mountComponent (
     }
   }
 
-  vm._watcher = new Watcher(vm, updateComponent, noop)
+  vm._watcher = new Watcher(vm, updateComponent, noop) //? 创建当前vm实例的渲染watcher,并保存到vm的_watcher上
   hydrating = false
 
   // manually mounted instance, call mounted on self

@@ -20,7 +20,7 @@ export default class Dep {
   }
 
   addSub (sub: Watcher) {
-    this.subs.push(sub) // 收集 watcher
+    this.subs.push(sub) //? 收集 watcher
   }
 
   removeSub (sub: Watcher) {
@@ -29,7 +29,7 @@ export default class Dep {
 
   depend () {
     if (Dep.target) {
-      Dep.target.addDep(this)
+      Dep.target.addDep(this) //? 调用 当前watcher 的 addDep方法，让watcher把 dep自己 存起来
     }
   }
 
