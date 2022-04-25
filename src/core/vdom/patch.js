@@ -111,14 +111,14 @@ export function createPatchFunction (backend) {
   let inPre = 0
   function createElm (vnode, insertedVnodeQueue, parentElm, refElm, nested) {
     vnode.isRootInsert = !nested // for transition enter check
-    if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
+    if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) { //? 尝试
       return
     }
 
     const data = vnode.data
     const children = vnode.children
     const tag = vnode.tag
-    if (isDef(tag)) {
+    if (isDef(tag)) { //? 有 tag标签名，说明这是一个 html标签名 或者是个 组件名
       if (process.env.NODE_ENV !== 'production') {
         if (data && data.pre) {
           inPre++
@@ -144,6 +144,8 @@ export function createPatchFunction (backend) {
           )
         }
       }
+      //? 上面的 if (createComponent()) { return } 没有进，说明这个vnode 并不是一个 组件vnode
+      //? 下面就可以根据 tag标签名，创建dom了，然后赋值给 vnode.elm
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
         : nodeOps.createElement(tag, vnode)
@@ -179,11 +181,11 @@ export function createPatchFunction (backend) {
       if (process.env.NODE_ENV !== 'production' && data && data.pre) {
         inPre--
       }
-    } else if (isTrue(vnode.isComment)) {
+    } else if (isTrue(vnode.isComment)) { //? 是个注释节点
       vnode.elm = nodeOps.createComment(vnode.text)
       insert(parentElm, vnode.elm, refElm)
     } else {
-      vnode.elm = nodeOps.createTextNode(vnode.text)
+      vnode.elm = nodeOps.createTextNode(vnode.text) //? 最后一定是个文本节点
       insert(parentElm, vnode.elm, refElm)
     }
   }
@@ -191,17 +193,17 @@ export function createPatchFunction (backend) {
   function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
     if (isDef(i)) {
-      const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
+      const isReactivated = isDef(vnode.componentInstance) && i.keepAlive //? vnode是一个组件，而且是被keep-live包裹的需要缓存的组件
       if (isDef(i = i.hook) && isDef(i = i.init)) {
-        i(vnode, false /* hydrating */, parentElm, refElm)
+        i(vnode, false /* hydrating */, parentElm, refElm) //? 调用组件的 init 钩子，走组件初始化流程
       }
       // after calling the init hook, if the vnode is a child component
       // it should've created a child instance and mounted it. the child
       // component also has set the placeholder vnode's elm.
       // in that case we can just return the element and be done.
-      if (isDef(vnode.componentInstance)) {
+      if (isDef(vnode.componentInstance)) { //? 这个vnode 是一个组件生成的vnode 的话就 initComponent 初始化这个组件
         initComponent(vnode, insertedVnodeQueue)
-        if (isTrue(isReactivated)) {
+        if (isTrue(isReactivated)) { //? 如果是需要缓存的组件，就 reactivateComponent
           reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)
         }
         return true
@@ -261,12 +263,18 @@ export function createPatchFunction (backend) {
     }
   }
 
+  /**
+   * 循环 儿子vnode，每项又调用 createElm，把每个儿子vnode又创建真实dom
+   * @param {*} vnode 当前真正执行的 vnode
+   * @param {*} children 当前vnode的 儿子vnode 组成的数组
+   * @param {*} insertedVnodeQueue 一个队列？
+   */
   function createChildren (vnode, children, insertedVnodeQueue) {
-    if (Array.isArray(children)) {
+    if (Array.isArray(children)) { //? children 是个数组，就说明当前vnode，有儿子vnode
       for (let i = 0; i < children.length; ++i) {
         createElm(children[i], insertedVnodeQueue, vnode.elm, null, true)
       }
-    } else if (isPrimitive(vnode.text)) {
+    } else if (isPrimitive(vnode.text)) { //? vnode.text 是个字符串，下面就创建文本节点，并插入到 vnode.elm 中
       nodeOps.appendChild(vnode.elm, nodeOps.createTextNode(vnode.text))
     }
   }
@@ -647,20 +655,20 @@ export function createPatchFunction (backend) {
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue, parentElm, refElm)
     } else {
-      const isRealElement = isDef(oldVnode.nodeType)
-      if (!isRealElement && sameVnode(oldVnode, vnode)) {
+      const isRealElement = isDef(oldVnode.nodeType) //? 判断oldVnode是否真实dom，只有真实节点才有 nodeType属性
+      if (!isRealElement && sameVnode(oldVnode, vnode)) { //? 两个都是 vnode，进这个if，然后进行两个vnode的逐层比较
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
       } else {
-        if (isRealElement) {
+        if (isRealElement) { //? 只会判断进入一次，<div id="app"></div> 挂载元素是真实的dom
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
           // a successful hydration.
-          if (oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) {
+          if (oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) { //? 暂时不用看，和服务端渲染有关
             oldVnode.removeAttribute(SSR_ATTR)
             hydrating = true
           }
-          if (isTrue(hydrating)) {
+          if (isTrue(hydrating)) { //? 暂时不用看，和服务端渲染有关
             if (hydrate(oldVnode, vnode, insertedVnodeQueue)) {
               invokeInsertHook(vnode, insertedVnodeQueue, true)
               return oldVnode
@@ -676,19 +684,19 @@ export function createPatchFunction (backend) {
           }
           // either not server-rendered, or hydration failed.
           // create an empty node and replace it
-          oldVnode = emptyNodeAt(oldVnode)
+          oldVnode = emptyNodeAt(oldVnode) //? 将真实挂载节点转化为 vnode
         }
         // replacing existing element
-        const oldElm = oldVnode.elm
-        const parentElm = nodeOps.parentNode(oldElm)
+        const oldElm = oldVnode.elm //? 拿到真实挂载节点 #app
+        const parentElm = nodeOps.parentNode(oldElm) //? 找到挂载节点的父级元素 body
         createElm(
           vnode,
           insertedVnodeQueue,
           // extremely rare edge case: do not insert if old element is in a
           // leaving transition. Only happens when combining transition +
           // keep-alive + HOCs. (#4590)
-          oldElm._leaveCb ? null : parentElm,
-          nodeOps.nextSibling(oldElm)
+          oldElm._leaveCb ? null : parentElm, //? 不知道 _leaveCb 有什么用，反正这里拿到父元素body，到时候使用 appendChild 给父元素插入新元素
+          nodeOps.nextSibling(oldElm) //? 找到挂载节点的下一个兄弟元素，到时候使用 insertBefore 插入这个兄弟元素的前面
         )
 
         if (isDef(vnode.parent)) {
