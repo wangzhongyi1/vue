@@ -175,13 +175,13 @@ function getData (data: Function, vm: Component): any {
 const computedWatcherOptions = { lazy: true }
 
 function initComputed (vm: Component, computed: Object) {
-  const watchers = vm._computedWatchers = Object.create(null)
+  const watchers = vm._computedWatchers = Object.create(null) // 给 vm实例身上加 _computedWatchers 属性，存放这个vm上所有的 计算属性watcher
   // computed properties are just getters during SSR
   const isSSR = isServerRendering()
 
   for (const key in computed) {
     const userDef = computed[key]
-    const getter = typeof userDef === 'function' ? userDef : userDef.get
+    const getter = typeof userDef === 'function' ? userDef : userDef.get // 用户传的计算属性，可能是个函数，或者是带有get/set的对象
     if (process.env.NODE_ENV !== 'production' && getter == null) {
       warn(
         `Getter is missing for computed property "${key}".`,
@@ -191,11 +191,11 @@ function initComputed (vm: Component, computed: Object) {
 
     if (!isSSR) {
       // create internal watcher for the computed property.
-      watchers[key] = new Watcher(
+      watchers[key] = new Watcher( //? 创建一个 计算属性watcher 
         vm,
         getter || noop,
         noop,
-        computedWatcherOptions
+        computedWatcherOptions //? {lazy: true} 计算属性watcher 特有
       )
     }
 
@@ -250,18 +250,18 @@ export function defineComputed (
       )
     }
   }
-  Object.defineProperty(target, key, sharedPropertyDefinition) // 使用Object.defineProperty把这个计算属性定义在构造函数身上
+  Object.defineProperty(target, key, sharedPropertyDefinition) // 使用Object.defineProperty把这个计算属性定义在 vm实例 身上
 }
 
 function createComputedGetter (key) {
-  return function computedGetter () {
-    const watcher = this._computedWatchers && this._computedWatchers[key]
+  return function computedGetter () { //? 计算属性取值时的 get函数
+    const watcher = this._computedWatchers && this._computedWatchers[key] //? 取值时肯定是vm.xxx，此时this指向vm实例，取出对应 key 的 计算属性watcher
     if (watcher) {
-      if (watcher.dirty) {
-        watcher.evaluate()
+      if (watcher.dirty) { //? watcher 身上的 dirty 值，和 lazy 一致, true才进入判断，计算属性重新取值
+        watcher.evaluate() //? 调用 计算属性watcher 的evaluate方法（这个方法只有计算属性watcher才会调用，其他类型的watcher不会调用）
       }
       if (Dep.target) {
-        watcher.depend()
+        watcher.depend() //? 调用 watcher 的 depend方法，循环 deps数组，调用每个 dep的depend方法
       }
       return watcher.value
     }

@@ -12,7 +12,7 @@ import {
 
 export const MAX_UPDATE_COUNT = 100
 
-const queue: Array<Watcher> = []
+const queue: Array<Watcher> = [] //? 存放所有要更新的watcher
 const activatedChildren: Array<Component> = []
 let has: { [key: number]: ?true } = {}
 let circular: { [key: number]: number } = {}
@@ -22,9 +22,10 @@ let index = 0
 
 /**
  * Reset the scheduler's state.
+ *? 重置所有全局参数，为下次更新做准备
  */
 function resetSchedulerState () {
-  index = queue.length = activatedChildren.length = 0
+  index = queue.length = activatedChildren.length = 0 //使用数组长度置为0 的方式来清空数组
   has = {}
   if (process.env.NODE_ENV !== 'production') {
     circular = {}
@@ -34,6 +35,7 @@ function resetSchedulerState () {
 
 /**
  * Flush both queues and run the watchers.
+ *? 执行调度，循环 queue, 取出每一个 watcher,执行 wacher的 run方法，进行重新渲染/取值
  */
 function flushSchedulerQueue () {
   flushing = true
@@ -47,7 +49,7 @@ function flushSchedulerQueue () {
   //    user watchers are created before the render watcher)
   // 3. If a component is destroyed during a parent component's watcher run,
   //    its watchers can be skipped.
-  queue.sort((a, b) => a.id - b.id)
+  queue.sort((a, b) => a.id - b.id) //? 将watcher按 id 排序
 
   // do not cache length because more watchers might be pushed
   // as we run existing watchers
@@ -55,7 +57,7 @@ function flushSchedulerQueue () {
     watcher = queue[index]
     id = watcher.id
     has[id] = null
-    watcher.run()
+    watcher.run() //? 执行当前watcher里保存的 get方法，然后执行 getter方法，最终是执行 vm._update(vm._render())
     // in dev build, check and stop circular updates.
     if (process.env.NODE_ENV !== 'production' && has[id] != null) {
       circular[id] = (circular[id] || 0) + 1

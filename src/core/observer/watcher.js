@@ -54,13 +54,13 @@ export default class Watcher {
       this.lazy = !!options.lazy //用户 computedWatcher, 表示有缓存效果
       this.sync = !!options.sync //用户watcher可能会传 sync: true，表示同步->即更改了一次被监听的值，就触发一次回调
     } else {
-      this.deep = this.user = this.lazy = this.sync = false
+      this.deep = this.user = this.lazy = this.sync = false //? 没有传 options，默认全部false，即最普通的watcher
     }
     this.cb = cb
-    this.id = ++uid // uid for batching
-    this.active = true
+    this.id = ++uid // uid for batching 每个watcher的唯一标识
+    this.active = true //? 标识这个 watcher 是否活跃，不活跃会被干掉
     this.dirty = this.lazy // for lazy watchers
-    this.deps = []
+    this.deps = [] //? 存放了和这个watcher 关联的 dep
     this.newDeps = []
     this.depIds = new Set()
     this.newDepIds = new Set()
@@ -71,7 +71,7 @@ export default class Watcher {
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
-      this.getter = parsePath(expOrFn) // 用户watcher 可能会传 'a.b.c':(newVal, oldVal)=>{}，需要解析 c值
+      this.getter = parsePath(expOrFn) //? 用户watcher 解析路径 { 'a.b.c': { handler: fn, deep: true, immediate: true }} 解析取到最终的 c 值
       if (!this.getter) {
         this.getter = function () {}
         process.env.NODE_ENV !== 'production' && warn(
@@ -102,7 +102,7 @@ export default class Watcher {
        *? 然后判断 if (!this.depIds.has(id)) {dep.addSub(this)} 又往回让dep把watcher自己也存起来(注意：整个过程里面 this.deps和this.depsIds 这两个数组始终为空)
        *? 最后两边都收集完，调用 this.cleanupDeps()，把 newDeps和newDepIds 的值分别赋值给 deps和depIds，然后清空newDeps和newDepIds两个数组
        */
-      value = this.getter.call(vm, vm)
+      value = this.getter.call(vm, vm) //? 调用 vm._update(vm._render()) 进行页面渲染更新
     } catch (e) {
       if (this.user) {
         handleError(e, vm, `getter for watcher "${this.expression}"`)
@@ -123,6 +123,7 @@ export default class Watcher {
 
   /**
    * Add a dependency to this directive.
+   *? 新增的属性添加到 newDepIds 和 newDeps 身上，但是为啥没有给 depIds和deps 添加?
    */
   addDep (dep: Dep) {
     const id = dep.id
@@ -130,30 +131,34 @@ export default class Watcher {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {
-        dep.addSub(this)
+        dep.addSub(this) //? 让 dep 把当前watcher保存起来
       }
     }
   }
 
   /**
    * Clean up for dependency collection.
+   *? 将新老数据交换，清除老数据
    */
   cleanupDeps () {
     let i = this.deps.length
     while (i--) {
       const dep = this.deps[i]
-      if (!this.newDepIds.has(dep.id)) {
-        dep.removeSub(this)
+      if (!this.newDepIds.has(dep.id)) { //? 新的 newDepIds 里没有老的里面的 dep.id，说明这个dep，需要删除
+        dep.removeSub(this) //? 调用 dep 的 removeSub方法，让 dep 从 subs数组中把自己移除
       }
     }
     let tmp = this.depIds
     this.depIds = this.newDepIds
     this.newDepIds = tmp
-    this.newDepIds.clear()
+    //? 上面三句 交换 depIds和newDepIds
+    this.newDepIds.clear() //? 现在 newDepIds 里面是老的，清除老的
+
     tmp = this.deps
     this.deps = this.newDeps
     this.newDeps = tmp
-    this.newDeps.length = 0
+    //? 上面三句 交换 deps和newDeps
+    this.newDeps.length = 0 //? 现在 newDeps 里面是老的，清除老的
   }
 
   /**
@@ -162,18 +167,19 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
-    if (this.lazy) {
+    if (this.lazy) { //? 计算属性watcher
       this.dirty = true
-    } else if (this.sync) {
+    } else if (this.sync) { //? 用户写的同步watcher，调用 this.run() -> this.get() -> this.getter() 也就是 vm.update(vm.render()) 进行组件更新
       this.run()
     } else {
-      queueWatcher(this)
+      queueWatcher(this) //? 进入队列，等待更新
     }
   }
 
   /**
    * Scheduler job interface.
    * Will be called by the scheduler.
+   *? 当前watcher后续进行更新操作，才会调用这个方法，重新执行 vm._update(vm._render())
    */
   run () {
     if (this.active) {
@@ -191,7 +197,7 @@ export default class Watcher {
         this.value = value
         if (this.user) {
           try {
-            this.cb.call(this.vm, value, oldValue)
+            this.cb.call(this.vm, value, oldValue) //? 用户watcher 传入的handler处理函数调用，并传入 newVal, oldVal
           } catch (e) {
             handleError(e, this.vm, `callback for watcher "${this.expression}"`)
           }
@@ -207,8 +213,8 @@ export default class Watcher {
    * This only gets called for lazy watchers.
    */
   evaluate () {
-    this.value = this.get()
-    this.dirty = false
+    this.value = this.get() //? 计算属性的 get 取值函数调用
+    this.dirty = false //? 计算属性watcher 依赖的 响应式属性的值改变时才会把 this.dirty 重新置为 true，从而触发计算属性更新
   }
 
   /**
@@ -217,12 +223,13 @@ export default class Watcher {
   depend () {
     let i = this.deps.length
     while (i--) {
-      this.deps[i].depend()
+      this.deps[i].depend() //? 调用每个 dep 的 depend方法
     }
   }
 
   /**
    * Remove self from all dependencies' subscriber list.
+   *? 调用watcher这个方法，在当前 vm实例 身上的 _watchers数组中，将当前watcher移除，并且通知所有和这个watcher关联的dep，在subs数组中删除自己
    */
   teardown () {
     if (this.active) {
@@ -230,7 +237,7 @@ export default class Watcher {
       // this is a somewhat expensive operation so we skip it
       // if the vm is being destroyed.
       if (!this.vm._isBeingDestroyed) {
-        remove(this.vm._watchers, this)
+        remove(this.vm._watchers, this) //? 把
       }
       let i = this.deps.length
       while (i--) {

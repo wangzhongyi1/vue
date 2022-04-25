@@ -122,24 +122,24 @@ export const nextTick = (function () {
   return function queueNextTick (cb?: Function, ctx?: Object) {
     let _resolve
     callbacks.push(() => {
-      if (cb) {
+      if (cb) { //? 优先判断用户调用 this.$nextTick(fn) 是否传了函数进来
         try {
           cb.call(ctx)
         } catch (e) {
           handleError(e, ctx, 'nextTick')
         }
-      } else if (_resolve) {
-        _resolve(ctx)
+      } else if (_resolve) { //? 用户没传函数进来，就调用 promise 的 resolve，用户使用：this.$nextTick().then(r => {})
+        _resolve(ctx) //? 下面保存的 Promise 的 resolve 函数执行，此时才改变promise的状态，然后用户注册的 then 方法里面的回调才会执行
       }
     })
-    if (!pending) {
+    if (!pending) { //? 保证多次调用 this.$nextTick 只执行一次异步队列
       pending = true
-      timerFunc()
+      timerFunc() //? 这个函数执行，会产生一个异步任务，异步的回调函数是nextTickHandler，也就是说nextTickHandler这个函数是异步执行的，nextTickHandler里面把callbacks保存的函数执行，最后重置 pending
     }
     // $flow-disable-line
     if (!cb && typeof Promise !== 'undefined') {
       return new Promise((resolve, reject) => {
-        _resolve = resolve
+        _resolve = resolve //? 把 Promise 的 resolve函数，保存到了外部，把控制权移交，由外部控制改变这个promise的状态
       })
     }
   }
