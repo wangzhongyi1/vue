@@ -25,7 +25,7 @@ export const arrayMethods = Object.create(arrayProto)
   const original = arrayProto[method]
   def(arrayMethods, method, function mutator (...args) {
     const result = original.apply(this, args)
-    const ob = this.__ob__
+    const ob = this.__ob__ // ob -> Observer实例
     let inserted
     switch (method) {
       case 'push':

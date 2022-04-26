@@ -45,7 +45,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   Vue.nextTick = nextTick //? 定义 Vue.nextTick, this.$nextTick 在页面更新后立即获取真实dom
 
   Vue.options = Object.create(null) //? Vue.options = {}
-  ASSET_TYPES.forEach(type => { //? Vue.option = { components: {}, directives: {}, filters: {} }
+  ASSET_TYPES.forEach(type => { //? Vue.options = { components: {}, directives: {}, filters: {} }
     Vue.options[type + 's'] = Object.create(null)
   })
 

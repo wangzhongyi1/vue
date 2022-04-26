@@ -49,10 +49,10 @@ export default class Watcher {
     vm._watchers.push(this)
     // options
     if (options) {
-      this.deep = !!options.deep //? 深度监听 -> 用户watcher
-      this.user = !!options.user //? 标识是否是 -> 用户watcher
-      this.lazy = !!options.lazy //? 是否懒计算 -> 计算属性watcher
-      this.sync = !!options.sync //? 是否同步(每次更新属性就调用) -> 用户watcher
+      this.deep = !!options.deep //用户watcher可能会传 deep: true，需要深层监控
+      this.user = !!options.user //标识是否 用户watcher，只有用户watcher才是true
+      this.lazy = !!options.lazy //用户 computedWatcher, 表示有缓存效果
+      this.sync = !!options.sync //用户watcher可能会传 sync: true，表示同步->即更改了一次被监听的值，就触发一次回调
     } else {
       this.deep = this.user = this.lazy = this.sync = false //? 没有传 options，默认全部false，即最普通的watcher
     }
@@ -95,6 +95,13 @@ export default class Watcher {
     let value
     const vm = this.vm
     try {
+      /**
+       *? 当前组件调用 this._update(this._render()) 进行模版写的变量取值,进而触发响应式变量的getter，然后dep.depend()通知依赖收集
+       *? depend方法里面调用 Dep.target.addDep(this) 让当前的正在活跃的watcher添加自己
+       *? addDep方法里面判断 if (!this.newDepIds.has(id)) 然后添加到 this.newDepIds和this.newDep 两个数组里面
+       *? 然后判断 if (!this.depIds.has(id)) {dep.addSub(this)} 又往回让dep把watcher自己也存起来(注意：整个过程里面 this.deps和this.depsIds 这两个数组始终为空)
+       *? 最后两边都收集完，调用 this.cleanupDeps()，把 newDeps和newDepIds 的值分别赋值给 deps和depIds，然后清空newDeps和newDepIds两个数组
+       */
       value = this.getter.call(vm, vm) //? 调用 vm._update(vm._render()) 进行页面渲染更新
     } catch (e) {
       if (this.user) {

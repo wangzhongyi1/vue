@@ -29,6 +29,7 @@ export function initRender (vm: Component) {
   vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)
   // normalization is always applied for the public version, used in
   // user-written render functions.
+  //? 用户写的 render函数中传入的 h 如：h('div', {attrs:{href: '#about/a'},class:{red: true},on:{click: fn}}, h('span', '学习源码太难了'))
   vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)
 
   // $attrs & $listeners are exposed for easier HOC creation.

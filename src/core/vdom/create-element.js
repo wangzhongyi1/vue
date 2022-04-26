@@ -31,6 +31,13 @@ export function createElement (
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode {
+  /**
+   * h函数的写法
+   * 1. h('div', [h('span'), h('p')]) //第一个参数是dom标签名，第二个参数是包含所有children的数组
+   * 2. h('div', '今天天气真不错') //第二个参数直接是字符串，最终渲染 <div>今天天气真不错</div>
+   * 3. h('div', {class: ['active'],  style: {color: 'red'},  }, '学习源码太难了') //最终渲染 <div class="active" style="color: red;">学习源码太难了</div>
+   * 4. h('div', {ref: 'myRef', refInFor: true, props: {}, on: {} }, [h('span'), h('p')]) //第二个参数是配置对象，第三个参数是children数组
+   */
   if (Array.isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data
