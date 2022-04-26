@@ -406,23 +406,24 @@ export function mergeOptions (
  * Resolve an asset.
  * This function is used because child instances need access
  * to assets defined in its ancestor chain.
+ *? 找到 vm.$options 定义的的组件，过滤器，指令
  */
 export function resolveAsset (
-  options: Object,
-  type: string,
-  id: string,
+  options: Object, // vm.$options
+  type: string, // 'components', 'filters'
+  id: string, // 'my-com'
   warnMissing?: boolean
 ): any {
   /* istanbul ignore if */
   if (typeof id !== 'string') {
     return
   }
-  const assets = options[type]
+  const assets = options[type] // 如：vm.$options.components 找到实例身上的所有组件
   // check local registration variations first
-  if (hasOwn(assets, id)) return assets[id]
-  const camelizedId = camelize(id)
-  if (hasOwn(assets, camelizedId)) return assets[camelizedId]
-  const PascalCaseId = capitalize(camelizedId)
+  if (hasOwn(assets, id)) return assets[id] // 如：根据传入的组件id，能找到组件构造函数，就返回
+  const camelizedId = camelize(id) // 把中横杠连接的组件名字转化成驼峰形式 'my-com' -> 'myCom'
+  if (hasOwn(assets, camelizedId)) return assets[camelizedId] // 如果驼峰形式的组件名能找到，就返回
+  const PascalCaseId = capitalize(camelizedId) // 把首字母转化成大写 'mycom' -> 'Mycom
   if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId]
   // fallback to prototype chain
   const res = assets[id] || assets[camelizedId] || assets[PascalCaseId]

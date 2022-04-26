@@ -8,7 +8,8 @@
 </head>
 <body>
     
-    <div id="app">今天天气很好</div>
+    <!-- <div id="app">今天天气很好</div> -->
+    <div id="app">{{ Iam }}</div>
 
     <script src="../dist/vue.js"></script>
     <script>
@@ -20,6 +21,11 @@
         debugger
         var vm = new Vue({
             el: '#app',
+            data () {
+                return {
+                    Iam: '王忠毅'
+                }
+            }
             // components: { myCom },
         })
     </script>

@@ -38,10 +38,10 @@ export function createElement (
    * 3. h('div', {class: ['active'],  style: {color: 'red'},  }, '学习源码太难了') //最终渲染 <div class="active" style="color: red;">学习源码太难了</div>
    * 4. h('div', {ref: 'myRef', refInFor: true, props: {}, on: {} }, [h('span'), h('p')]) //第二个参数是配置对象，第三个参数是children数组
    */
-  if (Array.isArray(data) || isPrimitive(data)) {
+  if (Array.isArray(data) || isPrimitive(data)) { //? 上面的第一种情况，第二个参数是children而不是一些配置
     normalizationType = children
-    children = data
-    data = undefined
+    children = data //? data 赋值给 children，正确归位
+    data = undefined //? 然后把 data 清空，因为就是没有传配置的
   }
   if (isTrue(alwaysNormalize)) {
     normalizationType = ALWAYS_NORMALIZE
@@ -50,7 +50,7 @@ export function createElement (
 }
 
 export function _createElement (
-  context: Component,
+  context: Component, // 当前的构造函数 Vue vueComponent
   tag?: string | Class<Component> | Function | Object,
   data?: VNodeData,
   children?: any,
@@ -99,13 +99,13 @@ export function _createElement (
   if (typeof tag === 'string') {
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
-    if (config.isReservedTag(tag)) {
+    if (config.isReservedTag(tag)) { //? 判断是否原生html标签 如：div,span,p
       // platform built-in elements
       vnode = new VNode(
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
       )
-    } else if (isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
+    } else if (isDef(Ctor = resolveAsset(context.$options, 'components', tag))) { //? 通过构造函数的 $options 找到组件的构造函数
       // component
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {

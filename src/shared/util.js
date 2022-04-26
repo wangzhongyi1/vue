@@ -164,7 +164,7 @@ export function cached<F: Function> (fn: F): F {
 
 /**
  * Camelize a hyphen-delimited string.
- *? 将 (\w) 捕获到的转换为大写
+ *? 将 'my-com' 这种组件名转化成 'myCom' 也就是中横杠连接的组件名转化成驼峰形式
  */
 const camelizeRE = /-(\w)/g
 export const camelize = cached((str: string): string => {

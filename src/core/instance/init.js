@@ -29,7 +29,7 @@ export function initMixin (Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
-    if (options && options._isComponent) {
+    if (options && options._isComponent) { //? _isComponent 标识当前调用 _init 进行初始化的是组件 vdom/create-component.js createComponentInstanceForVnode函数内标识
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
@@ -71,8 +71,13 @@ export function initMixin (Vue: Class<Component>) {
   }
 }
 
+/**
+ * 子组件 vm.$options 原型指向 构造函数options，然后添加 parent 相关东西到 vm.$options 上
+ * @param {*} vm 
+ * @param {*} options 子组件中用户写的option
+ */
 function initInternalComponent (vm: Component, options: InternalComponentOptions) {
-  const opts = vm.$options = Object.create(vm.constructor.options)
+  const opts = vm.$options = Object.create(vm.constructor.options) // 拿到构造函数身上的 options
   // doing this because it's faster than dynamic enumeration.
   opts.parent = options.parent
   opts.propsData = options.propsData
@@ -82,7 +87,7 @@ function initInternalComponent (vm: Component, options: InternalComponentOptions
   opts._componentTag = options._componentTag
   opts._parentElm = options._parentElm
   opts._refElm = options._refElm
-  if (options.render) {
+  if (options.render) { //? 说明用户自己写了 render
     opts.render = options.render
     opts.staticRenderFns = options.staticRenderFns
   }

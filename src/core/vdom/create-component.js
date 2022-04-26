@@ -202,7 +202,7 @@ export function createComponentInstanceForVnode (
 ): Component {
   const vnodeComponentOptions = vnode.componentOptions
   const options: InternalComponentOptions = {
-    _isComponent: true,
+    _isComponent: true, //? 标识是组件 -> instance/init.js 里面会根据这个字段判断，然后走 initInternalComponent
     parent,
     propsData: vnodeComponentOptions.propsData,
     _componentTag: vnodeComponentOptions.tag,

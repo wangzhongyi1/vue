@@ -54,8 +54,8 @@ export function lifecycleMixin (Vue: Class<Component>) {
     }
     const prevEl = vm.$el
     const prevVnode = vm._vnode //? 取出上一次保存的 vnode, 可以和最新的 vnode 做 dom-diff
-    const prevActiveInstance = activeInstance
-    activeInstance = vm
+    const prevActiveInstance = activeInstance //? 将上次活跃的 实例赋值给 prevActiveInstance变量
+    activeInstance = vm //? 将当前 vm实例 引用赋值给 activeInstance，标记当前正在活跃的实例
     vm._vnode = vnode //? 将现在最新的 vnode 保存在 _vnode 属性上
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.

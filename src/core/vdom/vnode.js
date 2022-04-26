@@ -38,18 +38,18 @@ export default class VNode {
     componentOptions?: VNodeComponentOptions,
     asyncFactory?: Function
   ) {
-    this.tag = tag
-    this.data = data
-    this.children = children
-    this.text = text
-    this.elm = elm
+    this.tag = tag // 标签名或组件名 div my-com
+    this.data = data // 如：{attrs: {title: '123'}, on: {click: fn}, class: 'active'}
+    this.children = children // 当前 vnode 的子vnode
+    this.text = text // 创建文本vnode是才会有这个
+    this.elm = elm // 这个vnode对应的 真实dom
     this.ns = undefined
-    this.context = context
+    this.context = context // 存放当前 vm实例
     this.functionalContext = undefined
     this.functionalOptions = undefined
     this.functionalScopeId = undefined
-    this.key = data && data.key
-    this.componentOptions = componentOptions
+    this.key = data && data.key // 用户自己在组件上写的 key 如：<my-com key='abc'></my-com>
+    this.componentOptions = componentOptions  // 创建组件时传入的选项 如：const myCom = { template: <p>123</p>, data: {}, methods: {} }
     this.componentInstance = undefined
     this.parent = undefined
     this.raw = false
