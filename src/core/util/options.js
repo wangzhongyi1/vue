@@ -373,14 +373,14 @@ export function mergeOptions (
     child = child.options
   }
 
-  normalizeProps(child, vm)
-  normalizeInject(child, vm)
-  normalizeDirectives(child)
-  const extendsFrom = child.extends
+  normalizeProps(child, vm) //? 子组件中写了 props
+  normalizeInject(child, vm) //? 子组件中写了 inject
+  normalizeDirectives(child) //? 子组件中注册了局部指令 directives: {}
+  const extendsFrom = child.extends //? 每个组件内部都可以写 {extends:componentA} 说明当前组件继承自哪个组件，而无需使用 Vue.extend
   if (extendsFrom) {
     parent = mergeOptions(parent, extendsFrom, vm)
   }
-  if (child.mixins) {
+  if (child.mixins) { //? 每个组件内部也可以写 {mixins: {}} 表示要混入进当前组件的选项
     for (let i = 0, l = child.mixins.length; i < l; i++) {
       parent = mergeOptions(parent, child.mixins[i], vm)
     }
@@ -396,7 +396,7 @@ export function mergeOptions (
     }
   }
   function mergeField (key) {
-    const strat = strats[key] || defaultStrat
+    const strat = strats[key] || defaultStrat //? 取出当前 key 对应的合并策略
     options[key] = strat(parent[key], child[key], vm, key)
   }
   return options
